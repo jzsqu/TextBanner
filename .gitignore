@@ -1,0 +1,15 @@
+# Build output
+bin/
+obj/
+publish/
+dist/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+
+# User-specific files
+*.user
+*.suo
+*.log

@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "TextBanner 标签桥接",
+  "version": "1.0.0",
+  "description": "把浏览器标签（标题/地址）实时上报给本机 TextBanner，用于“新标签页”触发。",
+  "permissions": ["tabs"],
+  "host_permissions": ["http://127.0.0.1:51739/*"],
+  "background": { "service_worker": "background.js" },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "TextBanner 标签桥接"
+  }
+}
