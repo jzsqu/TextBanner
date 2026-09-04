@@ -34,13 +34,6 @@ public partial class App : System.Windows.Application
         try
         {
             _mutex = new Mutex(true, @"Global\TextBanner_SingleInstance", out bool createdNew);
-            if (!createdNew)
-            {
-                System.Windows.MessageBox.Show("文本触发提醒已在运行，请查看系统托盘图标。",
-                    "文本触发提醒", MessageBoxButton.OK, MessageBoxImage.Information);
-                Shutdown();
-                return;
-            }
 
             bool minimized = e.Args.Any(a =>
                 a.Equals("--minimized", StringComparison.OrdinalIgnoreCase) ||
@@ -48,15 +41,27 @@ public partial class App : System.Windows.Application
 
             _services = new AppServices(minimized);
             ThemeManager.Apply(_services.Config.General.Theme); // 在创建任何窗口前先应用主题
+            Loc.Lang = _services.Config.General.Language;
+
+            if (!createdNew)
+            {
+                System.Windows.MessageBox.Show(Loc.Get("MsgRunning"), Loc.Get("AppTitle"),
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                _services.Dispose();
+                _services = null;
+                Shutdown();
+                return;
+            }
+
             _services.Start();
 
             if (e.Args.Any(a => a.Equals("--test", StringComparison.OrdinalIgnoreCase)))
-                _services.Banner.Show("测试提示：文本触发提醒运行正常 ✔", 6, "large", "测试横幅");
+                _services.Banner.Show(Loc.Get("TestContent"), 6, "large", Loc.Get("TestTitle"));
         }
         catch (Exception ex)
         {
             Log(ex);
-            System.Windows.MessageBox.Show("启动失败：" + ex.Message, "文本触发提醒",
+            System.Windows.MessageBox.Show(Loc.Get("MsgStartupFailed") + ex.Message, Loc.Get("AppTitle"),
                 MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
         }

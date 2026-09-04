@@ -10,6 +10,7 @@
     <RootNamespace>TextBanner</RootNamespace>
     <AssemblyName>TextBanner</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
     <Version>1.0.0</Version>
     <Description>基于文本触发的悬浮提示栏</Description>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
@@ -20,6 +21,13 @@
     <!-- 移除 WinForms 隐式 using，避免 System.Drawing.Color 与 System.Windows.Media.Color 等歧义 -->
     <Using Remove="System.Drawing" />
     <Using Remove="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 让 app.ico 也随发布输出，供安装器创建快捷方式使用 -->
+    <Content Include="app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

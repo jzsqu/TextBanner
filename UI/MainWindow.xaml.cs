@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using TextBanner.Models;
 using TextBanner.Services;
@@ -17,10 +18,10 @@ public partial class MainWindow : Window
     private DispatcherTimer _saveTimer;
     private DispatcherTimer _statusTimer;
 
-    private static readonly (string Name, string Hex)[] PresetColors =
+    private static readonly (string LocKey, string Hex)[] PresetColors =
     {
-        ("蓝色", "#2F6FED"), ("红色", "#E5484D"), ("绿色", "#30A46C"), ("橙色", "#F76B15"),
-        ("紫色", "#8E4EC6"), ("青色", "#00A2C7"), ("粉色", "#E93D82"), ("灰色", "#6B7280"),
+        ("ColorBlue", "#2F6FED"), ("ColorRed", "#E5484D"), ("ColorGreen", "#30A46C"), ("ColorOrange", "#F76B15"),
+        ("ColorPurple", "#8E4EC6"), ("ColorCyan", "#00A2C7"), ("ColorPink", "#E93D82"), ("ColorGray", "#6B7280"),
     };
 
     public MainWindow(AppServices app)
@@ -32,64 +33,7 @@ public partial class MainWindow : Window
         RuleList.ItemsSource = _rules;
         EventList.ItemsSource = _app.EventLog.Records;
 
-        SourceCombo.ItemsSource = new[]
-        {
-            new ComboItem("浏览器标签", RuleSource.Browser),
-            new ComboItem("窗口名字", RuleSource.Window),
-            new ComboItem("文本文件", RuleSource.File),
-            new ComboItem("文件夹", RuleSource.Folder),
-        };
-        SourceCombo.DisplayMemberPath = "Label";
-        SourceCombo.SelectedValuePath = "Value";
-
-        TargetCombo.ItemsSource = new[]
-        {
-            new ComboItem("标签标题", "title"),
-            new ComboItem("标签地址 URL", "url"),
-        };
-        TargetCombo.DisplayMemberPath = "Label";
-        TargetCombo.SelectedValuePath = "Value";
-
-        SizeCombo.ItemsSource = new[]
-        {
-            new ComboItem("小", "small"),
-            new ComboItem("中", "medium"),
-            new ComboItem("大", "large"),
-        };
-        SizeCombo.DisplayMemberPath = "Label";
-        SizeCombo.SelectedValuePath = "Value";
-
-        var themeAccent = (System.Windows.Media.Brush)System.Windows.Application.Current.FindResource("Theme.Accent");
-        var colorOptions = new List<ColorOption> { new ColorOption("跟随主题", "theme", themeAccent) };
-        colorOptions.AddRange(PresetColors.Select(c => new ColorOption(c.Name, c.Hex, Theme.AccentFromHex(c.Hex))));
-        ColorCombo.ItemsSource = colorOptions.ToArray();
-        ColorCombo.SelectedValuePath = "Hex";
-
-        PositionCombo.ItemsSource = new[]
-        {
-            new ComboItem("右上角", "top-right"),
-            new ComboItem("右下角", "bottom-right"),
-            new ComboItem("左上角", "top-left"),
-            new ComboItem("左下角", "bottom-left"),
-        };
-        PositionCombo.DisplayMemberPath = "Label";
-        PositionCombo.SelectedValuePath = "Value";
-
-        PollCombo.ItemsSource = new[]
-        {
-            new ComboItem("300 毫秒（灵敏）", 300),
-            new ComboItem("600 毫秒（默认）", 600),
-            new ComboItem("1000 毫秒", 1000),
-            new ComboItem("2000 毫秒（省电）", 2000),
-        };
-        PollCombo.DisplayMemberPath = "Label";
-        PollCombo.SelectedValuePath = "Value";
-
-        ThemeCombo.ItemsSource = ThemeManager.Options;
-        ThemeCombo.DisplayMemberPath = "Name";
-        ThemeCombo.SelectedValuePath = "Key";
-
-        LoadGeneralSettings();
+        ApplyLanguage();
 
         if (_rules.Count > 0)
             RuleList.SelectedIndex = 0;
@@ -100,6 +44,170 @@ public partial class MainWindow : Window
         _statusTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
         _statusTimer.Tick += (_, _) => UpdateCdpStatus();
         _statusTimer.Start();
+    }
+
+    // ---------------- 本地化 ----------------
+
+    private void ApplyLanguage()
+    {
+        Loc.Lang = _app.Config.General.Language;
+        SetStaticTexts();
+        BuildComboItems();
+        LoadGeneralSettings();
+        if (_currentRule != null) LoadRule(_currentRule);
+
+        foreach (var r in _rules) r.RefreshDisplay();
+        foreach (var rec in _app.EventLog.Records) rec.RefreshDisplay();
+        UpdateCdpStatus();
+    }
+
+    private void SetStaticTexts()
+    {
+        Title = Loc.Get("SettingsTitle");
+        HeaderTitle.Text = Loc.Get("AppTitle");
+        HeaderSubtitle.Text = Loc.Get("AppSubtitle");
+
+        TabRules.Header = Loc.Get("TabRules");
+        TabEvents.Header = Loc.Get("TabEvents");
+        TabGeneral.Header = Loc.Get("TabGeneral");
+
+        SecBasic.Text = Loc.Get("SecBasic");
+        SecTrigger.Text = Loc.Get("SecTrigger");
+        SecDisplay.Text = Loc.Get("SecDisplay");
+        SecAppearance.Text = Loc.Get("SecAppearance");
+        SecBehavior.Text = Loc.Get("SecBehavior");
+        SecBrowser.Text = Loc.Get("SecBrowser");
+        SecSystem.Text = Loc.Get("SecSystem");
+
+        LblName.Text = Loc.Get("LblName");
+        LblSource.Text = Loc.Get("LblSource");
+        TargetLabel.Text = Loc.Get("LblMatchTarget");
+        LblSourceFilter.Text = Loc.Get("LblSourceFilter");
+        LblDisplayText.Text = Loc.Get("LblDisplayText");
+        LblAction.Text = Loc.Get("LblAction");
+        LblDuration.Text = Loc.Get("LblDuration");
+        LblSize.Text = Loc.Get("LblSize");
+        LblColor.Text = Loc.Get("LblColor");
+        LblTheme.Text = Loc.Get("LblTheme");
+        LblLanguage.Text = Loc.Get("LblLanguage");
+        LblPosition.Text = Loc.Get("LblPosition");
+        LblDefaultDuration.Text = Loc.Get("LblDefaultDuration");
+        LblPoll.Text = Loc.Get("LblPoll");
+        LblCooldown.Text = Loc.Get("LblCooldown");
+        LblBrowserProc.Text = Loc.Get("LblBrowserProc");
+        LblCdp.Text = Loc.Get("LblCdp");
+
+        EnabledCheck.Content = Loc.Get("ChkEnabled");
+        AutoStartCheck.Content = Loc.Get("ChkAutoStart");
+        PausedCheck.Content = Loc.Get("ChkPaused");
+
+        BtnNew.Content = Loc.Get("BtnNew");
+        BtnDuplicate.Content = Loc.Get("BtnDuplicate");
+        BtnDelete.Content = Loc.Get("BtnDelete");
+        BtnTest.Content = Loc.Get("BtnTest");
+        BtnClear.Content = Loc.Get("BtnClear");
+
+        HintMatch.Text = Loc.Get("HintMatch");
+        HintMarkdown.Text = Loc.Get("HintMarkdown");
+        HintAction.Text = Loc.Get("HintAction");
+        HintTheme.Text = Loc.Get("HintTheme");
+        HintPosition.Text = Loc.Get("HintPosition");
+        HintCooldown.Text = Loc.Get("HintCooldown");
+        HintBrowserProc.Text = Loc.Get("HintBrowserProc");
+        HintCdp.Text = Loc.Get("HintCdp");
+        HintEvents.Text = Loc.Get("HintEvents");
+        HintAutoSave.Text = Loc.Get("HintAutoSave");
+        DurationUnit.Text = Loc.Get("SecUnit");
+
+        BtnBold.ToolTip = Loc.Get("TipBold");
+        BtnItalic.ToolTip = Loc.Get("TipItalic");
+        BtnStrike.ToolTip = Loc.Get("TipStrike");
+        BtnCode.ToolTip = Loc.Get("TipCode");
+        BtnLink.ToolTip = Loc.Get("TipLink");
+        BtnLink.Content = Loc.Lang == "en" ? "Link" : "链接";
+        BtnHeading.ToolTip = Loc.Get("TipHeading");
+        BtnList.ToolTip = Loc.Get("TipList");
+
+        ColTime.Header = Loc.Get("ColTime");
+        ColRule.Header = Loc.Get("ColRule");
+        ColSource.Header = Loc.Get("ColSource");
+        ColMatch.Header = Loc.Get("ColMatch");
+    }
+
+    private void BuildComboItems()
+    {
+        SourceCombo.ItemsSource = new[]
+        {
+            new ComboItem(Loc.Get("SrcBrowser"), RuleSource.Browser),
+            new ComboItem(Loc.Get("SrcWindow"), RuleSource.Window),
+            new ComboItem(Loc.Get("SrcFile"), RuleSource.File),
+            new ComboItem(Loc.Get("SrcFolder"), RuleSource.Folder),
+        };
+        SourceCombo.DisplayMemberPath = "Label";
+        SourceCombo.SelectedValuePath = "Value";
+
+        TargetCombo.ItemsSource = new[]
+        {
+            new ComboItem(Loc.Get("TargetTitle"), "title"),
+            new ComboItem(Loc.Get("TargetUrl"), "url"),
+        };
+        TargetCombo.DisplayMemberPath = "Label";
+        TargetCombo.SelectedValuePath = "Value";
+
+        SizeCombo.ItemsSource = new[]
+        {
+            new ComboItem(Loc.Get("SizeSmall"), "small"),
+            new ComboItem(Loc.Get("SizeMedium"), "medium"),
+            new ComboItem(Loc.Get("SizeLarge"), "large"),
+        };
+        SizeCombo.DisplayMemberPath = "Label";
+        SizeCombo.SelectedValuePath = "Value";
+
+        PositionCombo.ItemsSource = new[]
+        {
+            new ComboItem(Loc.Get("PosTopRight"), "top-right"),
+            new ComboItem(Loc.Get("PosBottomRight"), "bottom-right"),
+            new ComboItem(Loc.Get("PosTopLeft"), "top-left"),
+            new ComboItem(Loc.Get("PosBottomLeft"), "bottom-left"),
+        };
+        PositionCombo.DisplayMemberPath = "Label";
+        PositionCombo.SelectedValuePath = "Value";
+
+        PollCombo.ItemsSource = new[]
+        {
+            new ComboItem(Loc.Get("Poll300"), 300),
+            new ComboItem(Loc.Get("Poll600"), 600),
+            new ComboItem(Loc.Get("Poll1000"), 1000),
+            new ComboItem(Loc.Get("Poll2000"), 2000),
+        };
+        PollCombo.DisplayMemberPath = "Label";
+        PollCombo.SelectedValuePath = "Value";
+
+        ThemeCombo.ItemsSource = new[]
+        {
+            new ComboItem(Loc.Get("ThemeAuto"), "auto"),
+            new ComboItem(Loc.Get("ThemeLight"), "light"),
+            new ComboItem(Loc.Get("ThemeDark"), "dark"),
+            new ComboItem(Loc.Get("ThemeMint"), "mint"),
+            new ComboItem(Loc.Get("ThemeDusk"), "dusk"),
+            new ComboItem(Loc.Get("ThemeCrimson"), "crimson"),
+        };
+        ThemeCombo.DisplayMemberPath = "Label";
+        ThemeCombo.SelectedValuePath = "Value";
+
+        LanguageCombo.ItemsSource = new[]
+        {
+            new ComboItem("中文", "zh"),
+            new ComboItem("English", "en"),
+        };
+        LanguageCombo.DisplayMemberPath = "Label";
+        LanguageCombo.SelectedValuePath = "Value";
+
+        var themeAccent = (Brush)Application.Current.FindResource("Theme.Accent");
+        var colorOptions = new List<ColorOption> { new ColorOption(Loc.Get("ColorTheme"), "theme", themeAccent) };
+        colorOptions.AddRange(PresetColors.Select(c => new ColorOption(Loc.Get(c.LocKey), c.Hex, Theme.AccentFromHex(c.Hex))));
+        ColorCombo.ItemsSource = colorOptions.ToArray();
+        ColorCombo.SelectedValuePath = "Hex";
     }
 
     // ---------------- 规则编辑 ----------------
@@ -131,7 +239,7 @@ public partial class MainWindow : Window
         SizeCombo.SelectedValue = rule.Size;
         ColorCombo.SelectedValue = rule.Color;
         ColorPreview.Fill = rule.Color == "theme"
-            ? (System.Windows.Media.Brush)System.Windows.Application.Current.FindResource("Theme.Accent")
+            ? (Brush)Application.Current.FindResource("Theme.Accent")
             : Theme.AccentFromHex(rule.Color);
         UpdateSourceUi(rule.Source);
 
@@ -155,20 +263,20 @@ public partial class MainWindow : Window
         switch (source)
         {
             case RuleSource.Browser:
-                MatchLabel.Text = "匹配文本（新标签页的标题 / 地址中包含）";
-                FilterHint.Text = "来源限定：仅匹配这些浏览器进程名（留空 = 所有浏览器），例如 chrome;msedge。仅在『新打开标签页』时触发一次";
+                MatchLabel.Text = Loc.Get("MatchLabelBrowser");
+                FilterHint.Text = Loc.Get("FilterHintBrowser");
                 break;
             case RuleSource.Window:
-                MatchLabel.Text = "匹配文本（窗口标题中包含）";
-                FilterHint.Text = "来源限定：窗口标题还需包含这些文字（留空 = 任意窗口），例如 记事本";
+                MatchLabel.Text = Loc.Get("MatchLabelWindow");
+                FilterHint.Text = Loc.Get("FilterHintWindow");
                 break;
             case RuleSource.File:
-                MatchLabel.Text = "匹配文本（文件内容中包含）";
-                FilterHint.Text = "来源限定：要监视的文件 / 文件夹 / 通配符，例如 D:\\logs\\*.txt（文件夹会监视其中常见文本文件）";
+                MatchLabel.Text = Loc.Get("MatchLabelFile");
+                FilterHint.Text = Loc.Get("FilterHintFile");
                 break;
             case RuleSource.Folder:
-                MatchLabel.Text = "匹配文本（打开的文件夹路径中包含）";
-                FilterHint.Text = "例如 D:\\某个文件夹 或 文件夹名；在该文件夹于资源管理器中被打开时触发一次（来源限定可留空）";
+                MatchLabel.Text = Loc.Get("MatchLabelFolder");
+                FilterHint.Text = Loc.Get("FilterHintFolder");
                 break;
         }
     }
@@ -229,7 +337,7 @@ public partial class MainWindow : Window
         {
             _currentRule.Color = hex;
             ColorPreview.Fill = hex == "theme"
-                ? (System.Windows.Media.Brush)System.Windows.Application.Current.FindResource("Theme.Accent")
+                ? (Brush)Application.Current.FindResource("Theme.Accent")
                 : Theme.AccentFromHex(hex);
             MarkDirty();
         }
@@ -237,7 +345,6 @@ public partial class MainWindow : Window
 
     private void DurationSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        // XAML 加载时 Slider 设置 Minimum/Maximum 会提前触发 ValueChanged，此时 DurationBox 尚未构造
         if (_loading || DurationBox == null || _currentRule == null) return;
         DurationBox.Text = e.NewValue.ToString("0.#");
         _currentRule.Duration = e.NewValue;
@@ -261,8 +368,8 @@ public partial class MainWindow : Window
     {
         var rule = new TriggerRule
         {
-            Name = "新规则 " + (_rules.Count + 1),
-            DisplayText = "这是新的触发提示内容"
+            Name = Loc.Get("AddRuleName") + " " + (_rules.Count + 1),
+            DisplayText = Loc.Get("AddRuleDisplay")
         };
         _rules.Add(rule);
         RuleList.SelectedItem = rule;
@@ -274,7 +381,7 @@ public partial class MainWindow : Window
         if (RuleList.SelectedItem is not TriggerRule src) return;
         var clone = CloneRule(src);
         clone.Id = Guid.NewGuid().ToString("N");
-        clone.Name = src.Name + "（副本）";
+        clone.Name = src.Name + Loc.Get("DupSuffix");
         _rules.Add(clone);
         RuleList.SelectedItem = clone;
         Save();
@@ -283,7 +390,7 @@ public partial class MainWindow : Window
     private void DeleteRule_Click(object sender, RoutedEventArgs e)
     {
         if (RuleList.SelectedItem is not TriggerRule rule) return;
-        var res = System.Windows.MessageBox.Show($"确定删除规则“{rule.Name}”吗？", "删除规则",
+        var res = MessageBox.Show(string.Format(Loc.Get("DelConfirm"), rule.Name), Loc.Get("DelTitle"),
             MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (res != MessageBoxResult.Yes) return;
         _rules.Remove(rule);
@@ -319,11 +426,11 @@ public partial class MainWindow : Window
         {
             switch (tag)
             {
-                case "bold": WrapSelection("**", "**", "文字"); break;
-                case "italic": WrapSelection("*", "*", "文字"); break;
-                case "strike": WrapSelection("~~", "~~", "文字"); break;
-                case "code": WrapSelection("`", "`", "代码"); break;
-                case "link": WrapSelection("[", "](https://)", "链接文字"); break;
+                case "bold": WrapSelection("**", "**", Loc.Get("FmtText")); break;
+                case "italic": WrapSelection("*", "*", Loc.Get("FmtText")); break;
+                case "strike": WrapSelection("~~", "~~", Loc.Get("FmtText")); break;
+                case "code": WrapSelection("`", "`", Loc.Get("FmtCode")); break;
+                case "link": WrapSelection("[", "](https://)", Loc.Get("FmtLinkText")); break;
                 case "heading": PrefixLine("# "); break;
                 case "list": PrefixLine("- "); break;
             }
@@ -363,6 +470,7 @@ public partial class MainWindow : Window
         _loading = true;
         var g = _app.Config.General;
         ThemeCombo.SelectedValue = g.Theme;
+        LanguageCombo.SelectedValue = g.Language;
         PositionCombo.SelectedValue = g.BannerPosition;
         DefaultDurationBox.Text = g.DefaultDuration.ToString("0.#");
         PollCombo.SelectedValue = g.PollIntervalMs;
@@ -393,7 +501,18 @@ public partial class MainWindow : Window
             ThemeManager.Apply(key);
             _app.Config.Save();
             if (_currentRule != null && _currentRule.Color == "theme")
-                ColorPreview.Fill = (System.Windows.Media.Brush)System.Windows.Application.Current.FindResource("Theme.Accent");
+                ColorPreview.Fill = (Brush)Application.Current.FindResource("Theme.Accent");
+        }
+    }
+
+    private void LanguageCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading) return;
+        if (LanguageCombo.SelectedValue is string lang)
+        {
+            _app.Config.General.Language = lang;
+            _app.Config.Save();
+            ApplyLanguage();
         }
     }
 
@@ -501,4 +620,7 @@ public partial class MainWindow : Window
     }
 }
 
-public sealed record ColorOption(string Name, string Hex, System.Windows.Media.Brush Brush);
+public sealed record ColorOption(string Name, string Hex, Brush Brush)
+{
+    public override string ToString() => Name;
+}

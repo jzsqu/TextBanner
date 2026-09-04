@@ -1,4 +1,5 @@
 using TextBanner.Models;
+using TextBanner.UI;
 
 namespace TextBanner.Services;
 
@@ -99,8 +100,8 @@ public class BrowserTabService
         var covered = _bridge.GetCoveredBrowsers();
         int count = _bridge.GetSnapshot().Count;
         string ext = covered.Count > 0
-            ? $"扩展已连接：{string.Join(", ", covered)}（{count} 个标签）"
-            : "扩展未连接";
+            ? $"{Loc.Get("ExtConnected")}{string.Join(", ", covered)}（{count} {Loc.Get("TabCount")}）"
+            : Loc.Get("ExtNotConnected");
         return ext + " ｜ " + _cdp.GetStatusDescription();
     }
 }

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using TextBanner.UI;
 
 namespace TextBanner.Models;
 
@@ -93,15 +94,21 @@ public class TriggerRule : INotifyPropertyChanged
     [JsonIgnore]
     public string SourceLabel => Source switch
     {
-        RuleSource.Browser => "浏览器标签",
-        RuleSource.Window => "窗口名字",
-        RuleSource.File => "文本文件",
-        RuleSource.Folder => "文件夹",
+        RuleSource.Browser => Loc.Get("SrcLabelBrowser"),
+        RuleSource.Window => Loc.Get("SrcLabelWindow"),
+        RuleSource.File => Loc.Get("SrcLabelFile"),
+        RuleSource.Folder => Loc.Get("SrcLabelFolder"),
         _ => Source.ToString()
     };
 
     [JsonIgnore]
-    public string Summary => $"{SourceLabel} · 匹配：{MatchText}";
+    public string Summary => $"{SourceLabel} · {Loc.Get("MatchPrefix")}{MatchText}";
+
+    public void RefreshDisplay()
+    {
+        OnPropertyChanged(nameof(SourceLabel));
+        OnPropertyChanged(nameof(Summary));
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -111,7 +118,8 @@ public class TriggerRule : INotifyPropertyChanged
 
 public class GeneralSettings
 {
-    public string Theme { get; set; } = "light"; // light | dark | mint | dusk
+    public string Theme { get; set; } = "light"; // light | dark | mint | dusk | crimson | auto
+    public string Language { get; set; } = "zh"; // zh | en
     public string BannerPosition { get; set; } = "top-right"; // top-right | bottom-right | top-left | bottom-left
     public int PollIntervalMs { get; set; } = 600;
     public double DefaultDuration { get; set; } = 8;
@@ -128,12 +136,27 @@ public class AppConfig
     public GeneralSettings General { get; set; } = new();
 }
 
-public class EventRecord
+public class EventRecord : INotifyPropertyChanged
 {
     public DateTime Time { get; set; } = DateTime.Now;
     public string RuleName { get; set; } = "";
-    public string Source { get; set; } = "";
+    public RuleSource? SourceKey { get; set; }
     public string MatchedText { get; set; } = "";
+
+    [JsonIgnore]
+    public string Source => SourceKey switch
+    {
+        RuleSource.Browser => Loc.Get("SrcLabelBrowser"),
+        RuleSource.Window => Loc.Get("SrcLabelWindow"),
+        RuleSource.File => Loc.Get("SrcLabelFile"),
+        RuleSource.Folder => Loc.Get("SrcLabelFolder"),
+        _ => Loc.Get("EngineSource"),
+    };
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public void RefreshDisplay()
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Source)));
 }
 
 public class WindowInfo

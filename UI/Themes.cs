@@ -18,6 +18,8 @@ public class ThemePalette
     public string TextSecondary { get; set; }
     public string Border { get; set; }
     public string Accent { get; set; }
+
+    public override string ToString() => Name;
 }
 
 public static class ThemeManager

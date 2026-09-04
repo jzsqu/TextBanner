@@ -1,114 +1,71 @@
 # TextBanner
 
-A lightweight Windows tray app that pops up a **floating banner** whenever text you care about appears in one of:
+Text-triggered floating banner for Windows. Built with .NET 8 + WPF, no third-party dependencies.
 
-- a **window title**
-- a **browser tab's title** (and URL)
-- a **text file's contents**
-- an **opened folder's path**
+文本触发的 Windows 悬浮提示条。基于 .NET 8 + WPF，无第三方依赖。
 
-Built with **.NET 8 + WPF** and **no third-party dependencies**.
+> Watches for keywords in **window titles / browser tab titles / text file contents / opened folder paths**, and pops up a floating banner (optionally opens a URL / folder / file). It does **not** read web page content.
+>
+> 监视 **窗口标题 / 浏览器标签标题 / 文本文件内容 / 已打开文件夹路径** 中出现的关键词，弹出一条悬浮提示（可选同时打开网址 / 文件夹 / 文件）。它**不会**读取网页正文内容。
 
-> **Precision note:** TextBanner only reads the four things listed above. A *browser-tab* rule matches the tab's **title** (or **URL**) — it does **not** parse or read the body/HTML content of web pages. Likewise a *folder* rule matches the folder's **path/name**, and a *file* rule matches the file's **content**, not its metadata.
+## Install · 安装
 
-> 中文说明见 [使用说明.md](使用说明.md)。
+### Option A · 便携版（免安装）
 
-## Why?
+Download `release-win-x64.zip` from [Releases](../../releases), unzip, run `TextBanner.exe`.
+从 [Releases](../../releases) 下载 `release-win-x64.zip`，解压后运行 `TextBanner.exe`。
 
-When you have a workflow or pipeline running in the background, you often want a visible reminder the moment something textual shows up — a tab titled `deploy` opens, a folder named `logs` is opened in Explorer, a log file gains the word `error`, or a window titled `rendering…` appears. TextBanner watches for these and shows a banner, and can optionally open a URL / folder / file for you at the same time.
+### Option B · 安装器（当前用户，无需管理员）
 
-## Features
+```powershell
+.\publish.ps1 -SelfContained   # build a self-contained bundle into publish\
+.\install.ps1                  # install: copies files, creates Start Menu + Desktop shortcuts, registers uninstaller
+```
 
-### Four trigger sources
+- Installs to `%LocalAppData%\Programs\TextBanner` · 安装到 `%LocalAppData%\Programs\TextBanner`
+- Uninstall: run `uninstall.ps1` in that folder, or via *Settings → Apps* · 卸载：运行安装目录下的 `uninstall.ps1`，或在「设置 → 应用」里卸载
 
-| Source | What is matched | Fires when |
-|--------|-----------------|------------|
-| **Browser tab** | tab title or URL | a *newly opened* tab matches |
-| **Folder** | full folder path / name | the folder is opened in File Explorer |
-| **Window title** | window title text | any visible window title matches |
-| **Text file** | file contents (UTF-8 / GBK auto-detected) | a watched file's content matches |
+> **Setup.exe (optional)**：install [Inno Setup 6](https://jrsoftware.org/isinfo.php), then `ISCC.exe installer\TextBanner.iss` to produce `dist\TextBanner-Setup.exe`.
+> **可选 Setup.exe**：安装 [Inno Setup 6](https://jrsoftware.org/isinfo.php) 后运行 `ISCC.exe installer\TextBanner.iss`，生成 `dist\TextBanner-Setup.exe`。
 
-- Case-insensitive; multiple keywords separated by `|` or `;` (any-of).
-- Each rule has its own **display text**, **duration**, **size**, and **color**.
-- Optional **"open on trigger"** action — open a URL / folder / file (multiple, `;`-separated).
+## Set language · 设置语言
 
-### Floating banner
+- Settings → **General** → **Appearance** → **Language** → 中文 / English（applies instantly）
+- 设置 → **常规设置** → **外观** → **语言** → 中文 / English（即时生效）
 
-Topmost, rounded, draggable, auto-dismiss:
+## Browser tab detection · 浏览器标签检测
 
-- **double-click** → open settings
-- **right-click** or **✕** → close
-- **long-press (~0.6 s)** → pin / unpin (a pinned banner does not auto-dismiss)
+The *browser tab* source fires only for **newly opened** tabs. Enable one of:
 
-### Markdown in the banner
+1. **Companion extension (recommended)** — load `browser-extension/` as an unpacked extension:
+   - Chrome `chrome://extensions` → Developer mode → Load unpacked · Edge `edge://extensions` → 开发人员模式 → 加载解压缩的扩展
+2. **CDP debug port** — launch the browser with `--remote-debugging-port=9222` (Chrome) / `9223` (Edge), after fully quitting it first.
 
-`**bold**`, `*italic*`, `` `code` ``, `~~strike~~`, `[link](url)`, `# headings`, `- lists` — styles can be **nested/combined** (e.g. `**bold *italic***`). The settings UI includes a formatting toolbar.
+「浏览器标签」来源只在**新打开标签页**时触发。方式一：加载 `browser-extension/` 为解压扩展（推荐，免重启浏览器）；方式二：给浏览器加 `--remote-debugging-port` 启动参数（先完全退出浏览器）。
 
-### Themes
+## Features · 功能
 
-Light / Dark / Mint / Dusk / Crimson, plus **follow system**. Three-tone minimalist UI.
-
-### Other
-
-- System tray menu: open settings, rule list, event log, pause, test, exit.
-- Event log (last 500 triggers).
-- JSON config at `%APPDATA%\TextBanner\config.json` (UTF-8); auto-start.
+- 4 trigger sources: browser tab / folder / window title / text file（4 种来源：浏览器标签 / 文件夹 / 窗口标题 / 文本文件）
+- Floating banner: double-click = settings, right-click/✕ = close, long-press = pin（悬浮条：双击设置、右键/✕ 关闭、长按固定）
+- Markdown display text（显示文本支持 Markdown，样式可叠加）
+- Themes: Light/Dark/Mint/Dusk/Crimson + follow system（5 套主题 + 跟随系统）
+- Per-rule color + "open on trigger" action（每条规则自定义颜色 + 触发后打开动作）
 
 ## Screenshots
 
-> ⚠️ 以下为占位图，请替换成你的截图（图片在 `docs/screenshots/` 目录下）。
-
-| 设置界面 | 悬浮提示条 | 主题 |
+| Settings 设置 | Banner 提示条 | Themes 主题 |
 |---|---|---|
 | ![settings](docs/screenshots/settings.png) | ![banner](docs/screenshots/banner.png) | ![themes](docs/screenshots/themes.png) |
 
-把 `docs/screenshots/` 下的三张 PNG 换成你自己的截图即可。
-
-## Requirements
-
-- Windows 10 / 11
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) — only needed to build.
-
-## Build & run
+## Build from source · 从源码构建
 
 ```powershell
 .\publish.ps1                     # framework-dependent
-.\publish.ps1 -SelfContained      # self-contained (no .NET runtime needed on target)
+.\publish.ps1 -SelfContained      # self-contained (no .NET runtime needed)
 .\publish.ps1 -Zip                # also package a release .zip
 ```
 
-Then run `publish\TextBanner.exe`.
-
-## Browser tab detection
-
-The **browser tab** source fires only for *newly opened* tabs. Enable one (or both) of:
-
-1. **Companion extension (recommended — no browser restart)**
-   - Chrome: `chrome://extensions` → Developer mode → "Load unpacked" → select `browser-extension/`.
-   - Edge: `edge://extensions` → Developer mode → "Load unpacked" → same folder.
-   - The extension pushes all tab titles/URLs to the app over `127.0.0.1:51739`.
-
-2. **CDP debug port**
-   - Launch the browser with `--remote-debugging-port=9222` (Chrome) / `9223` (Edge), after fully quitting it first.
-
-The current connection status is shown in *Settings → General → CDP debug port*.
-
-## Project layout
-
-```
-TextBanner/
-├── Models/             # rule / config / event models
-├── Services/           # window / folder / file / browser monitors, rule engine, bridge server
-├── UI/                 # settings window, banner, markdown renderer, themes
-├── browser-extension/  # companion Chrome/Edge MV3 extension
-├── .github/workflows/  # tag-triggered release build
-├── publish.ps1         # build / publish script
-└── 使用说明.md          # Chinese user guide
-```
-
-## Releases
-
-Pushing a `v*` tag (e.g. `v1.0.0`) triggers a GitHub Actions build that produces a self-contained `release-win-x64.zip` and attaches it to a GitHub Release.
+Requirements: Windows 10/11, [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
 
 ## License
 

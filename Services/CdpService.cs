@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using TextBanner.Models;
+using TextBanner.UI;
 
 namespace TextBanner.Services;
 
@@ -65,15 +66,15 @@ public class CdpService
     public string GetStatusDescription()
     {
         if (string.IsNullOrWhiteSpace(_general.CdpPorts))
-            return "浏览器标签检测（CDP）：未配置调试端口";
+            return Loc.Get("CdpPrefix") + Loc.Get("CdpNotConfigured");
         var parts = new List<string>();
         foreach (var port in SplitPorts(_general.CdpPorts))
         {
             bool connected = _portBrowser.TryGetValue(port, out var b)
                 && (!_deadUntil.TryGetValue(port, out var d) || DateTime.UtcNow >= d);
-            parts.Add(connected ? $"{b}({port}) 已连接" : $"{port} 未连接");
+            parts.Add(connected ? $"{b}({port}) {Loc.Get("CdpPortConnected")}" : $"{port} {Loc.Get("CdpPortNotConnected")}");
         }
-        return "浏览器标签检测（CDP）：" + string.Join(" · ", parts);
+        return Loc.Get("CdpPrefix") + string.Join(" · ", parts);
     }
 
     private async Task<string> GetBrowserNameAsync(int port)

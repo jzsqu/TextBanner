@@ -1,7 +1,7 @@
 <Window x:Class="TextBanner.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="文本触发提醒 — 设置"
+        Title="TextBanner — Settings"
         Width="940" Height="680"
         MinWidth="860" MinHeight="600"
         WindowStartupLocation="CenterScreen"
@@ -259,12 +259,12 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
-            <TextBlock Text="文本触发提醒" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Theme.Text}" VerticalAlignment="Center"/>
-            <TextBlock Text="  悬浮提示栏 · 基于文本触发" FontSize="12" Foreground="{DynamicResource Theme.TextSecondary}" VerticalAlignment="Center" Margin="8,3,0,0"/>
+            <TextBlock x:Name="HeaderTitle" Text="TextBanner" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Theme.Text}" VerticalAlignment="Center"/>
+            <TextBlock x:Name="HeaderSubtitle" Text="Floating banner · text-triggered" FontSize="12" Foreground="{DynamicResource Theme.TextSecondary}" VerticalAlignment="Center" Margin="8,3,0,0"/>
         </StackPanel>
 
         <TabControl x:Name="MainTabs" Grid.Row="1">
-            <TabItem Header="规则">
+            <TabItem x:Name="TabRules" Header="Rules">
                 <Grid Margin="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="300"/>
@@ -277,9 +277,9 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Button Content="＋ 新建" Style="{StaticResource PrimaryButton}" Click="AddRule_Click"/>
-                            <Button Content="复制" Margin="6,0,0,0" Click="DuplicateRule_Click"/>
-                            <Button Content="删除" Margin="6,0,0,0" Click="DeleteRule_Click"/>
+                            <Button x:Name="BtnNew" Content="New" Style="{StaticResource PrimaryButton}" Click="AddRule_Click"/>
+                            <Button x:Name="BtnDuplicate" Content="Duplicate" Margin="6,0,0,0" Click="DuplicateRule_Click"/>
+                            <Button x:Name="BtnDelete" Content="Delete" Margin="6,0,0,0" Click="DeleteRule_Click"/>
                         </StackPanel>
                         <ListBox x:Name="RuleList"
                                  Grid.Row="1"
@@ -311,36 +311,36 @@
 
                     <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel x:Name="EditorPanel" Margin="10,4,10,16">
-                            <TextBlock Text="基本信息" Style="{StaticResource Section}"/>
-                            <TextBlock Text="规则名称" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="SecBasic" Text="Basic info" Style="{StaticResource Section}"/>
+                            <TextBlock x:Name="LblName" Text="Name" Style="{StaticResource Label}"/>
                             <TextBox x:Name="NameBox" TextChanged="Text_Changed"/>
-                            <CheckBox x:Name="EnabledCheck" Content="启用此规则" Margin="0,12,0,0" Click="EnabledCheck_Click"/>
+                            <CheckBox x:Name="EnabledCheck" Content="Enabled" Margin="0,12,0,0" Click="EnabledCheck_Click"/>
 
-                            <TextBlock Text="触发条件" Style="{StaticResource Section}"/>
-                            <TextBlock Text="触发来源" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="SecTrigger" Text="Trigger" Style="{StaticResource Section}"/>
+                            <TextBlock x:Name="LblSource" Text="Source" Style="{StaticResource Label}"/>
                             <ComboBox x:Name="SourceCombo" SelectionChanged="SourceCombo_SelectionChanged"/>
 
-                            <TextBlock x:Name="MatchLabel" Text="匹配文本（标题 / 内容中包含，多个用 | 或 ; 分隔）" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                            <TextBlock x:Name="MatchLabel" Text="Match text" Style="{StaticResource Label}" Margin="0,12,0,4"/>
                             <TextBox x:Name="MatchBox" TextChanged="Text_Changed"/>
-                            <TextBlock Style="{StaticResource Hint}" Text="例如：关键词，或多个用 | 或 ; 分隔（任一命中即触发，不区分大小写）"/>
+                            <TextBlock x:Name="HintMatch" Style="{StaticResource Hint}" Text="e.g. keyword"/>
 
-                            <TextBlock x:Name="TargetLabel" Text="匹配目标" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                            <TextBlock x:Name="TargetLabel" Text="Match target" Style="{StaticResource Label}" Margin="0,12,0,4"/>
                             <ComboBox x:Name="TargetCombo" SelectionChanged="TargetCombo_SelectionChanged"/>
 
-                            <TextBlock Text="来源限定" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                            <TextBlock x:Name="LblSourceFilter" Text="Source filter" Style="{StaticResource Label}" Margin="0,12,0,4"/>
                             <TextBox x:Name="FilterBox" TextChanged="Text_Changed"/>
                             <TextBlock x:Name="FilterHint" Style="{StaticResource Hint}"/>
 
-                            <TextBlock Text="显示效果" Style="{StaticResource Section}"/>
-                            <TextBlock Text="显示文本（支持 Markdown，可叠加样式）" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="SecDisplay" Text="Display" Style="{StaticResource Section}"/>
+                            <TextBlock x:Name="LblDisplayText" Text="Display text (Markdown)" Style="{StaticResource Label}"/>
                             <StackPanel Orientation="Horizontal" Margin="0,2,0,4">
-                                <Button Content="B" Tag="bold" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" FontWeight="Bold" ToolTip="加粗 **文字**"/>
-                                <Button Content="I" Tag="italic" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" FontStyle="Italic" ToolTip="斜体 *文字*"/>
-                                <Button Content="S" Tag="strike" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" ToolTip="删除线 ~~文字~~"/>
-                                <Button Content="`" Tag="code" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" ToolTip="行内代码 `文字`"/>
-                                <Button Content="链接" Tag="link" Click="FormatButton_Click" Padding="8,4" Margin="0,0,4,0" ToolTip="链接 [文字](https://)"/>
-                                <Button Content="H" Tag="heading" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" FontWeight="Bold" ToolTip="标题 # "/>
-                                <Button Content="•" Tag="list" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" ToolTip="列表 - "/>
+                                <Button x:Name="BtnBold" Content="B" Tag="bold" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" FontWeight="Bold"/>
+                                <Button x:Name="BtnItalic" Content="I" Tag="italic" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" FontStyle="Italic"/>
+                                <Button x:Name="BtnStrike" Content="S" Tag="strike" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0"/>
+                                <Button x:Name="BtnCode" Content="`" Tag="code" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0"/>
+                                <Button x:Name="BtnLink" Content="Link" Tag="link" Click="FormatButton_Click" Padding="8,4" Margin="0,0,4,0"/>
+                                <Button x:Name="BtnHeading" Content="H" Tag="heading" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0" FontWeight="Bold"/>
+                                <Button x:Name="BtnList" Content="•" Tag="list" Click="FormatButton_Click" Width="30" Padding="0,4" Margin="0,0,4,0"/>
                             </StackPanel>
                             <TextBox x:Name="DisplayBox"
                                      TextChanged="Text_Changed"
@@ -349,13 +349,13 @@
                                      Height="76"
                                      VerticalScrollBarVisibility="Auto"
                                      VerticalContentAlignment="Top"/>
-                            <TextBlock Style="{StaticResource Hint}" Text="支持 **加粗** *斜体* `代码` ~~删除线~~ [链接](url)、# 标题、- 列表"/>
+                            <TextBlock x:Name="HintMarkdown" Style="{StaticResource Hint}" Text="Supports **bold**"/>
 
-                            <TextBlock Text="触发后打开（可选）" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                            <TextBlock x:Name="LblAction" Text="Open on trigger (optional)" Style="{StaticResource Label}" Margin="0,12,0,4"/>
                             <TextBox x:Name="ActionBox" TextChanged="Text_Changed"/>
-                            <TextBlock Style="{StaticResource Hint}" Text="触发时同时打开一个或多个网址 / 文件夹 / 文件（如 https://…、D:\logs、D:\a.txt），多个用 ; 分隔，留空则不打开"/>
+                            <TextBlock x:Name="HintAction" Style="{StaticResource Hint}" Text="Open URL/folder/file"/>
 
-                            <TextBlock Text="显示时长（秒）" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                            <TextBlock x:Name="LblDuration" Text="Duration (seconds)" Style="{StaticResource Label}" Margin="0,12,0,4"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -364,13 +364,13 @@
                                 </Grid.ColumnDefinitions>
                                 <Slider x:Name="DurationSlider" Grid.Column="0" Minimum="1" Maximum="120" ValueChanged="DurationSlider_ValueChanged" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <TextBox x:Name="DurationBox" Grid.Column="1" Width="54" TextAlignment="Center" LostFocus="DurationBox_LostFocus" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text=" 秒" FontSize="13" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="DurationUnit" Grid.Column="2" Text="s" FontSize="13" VerticalAlignment="Center"/>
                             </Grid>
 
-                            <TextBlock Text="显示大小" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                            <TextBlock x:Name="LblSize" Text="Size" Style="{StaticResource Label}" Margin="0,12,0,4"/>
                             <ComboBox x:Name="SizeCombo" SelectionChanged="SizeCombo_SelectionChanged"/>
 
-                            <TextBlock Text="提示条颜色" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                            <TextBlock x:Name="LblColor" Text="Banner color" Style="{StaticResource Label}" Margin="0,12,0,4"/>
                             <StackPanel Orientation="Horizontal">
                                 <ComboBox x:Name="ColorCombo" Width="150" SelectionChanged="ColorCombo_SelectionChanged">
                                     <ComboBox.ItemTemplate>
@@ -385,74 +385,77 @@
                                 <Rectangle x:Name="ColorPreview" Width="22" Height="22" RadiusX="6" RadiusY="6" Margin="10,0,0,0" VerticalAlignment="Center" Stroke="{DynamicResource Theme.Border}"/>
                             </StackPanel>
 
-                            <Button Content="▶ 测试这条提示" Margin="0,18,0,0" HorizontalAlignment="Left" Click="TestButton_Click"/>
+                            <Button x:Name="BtnTest" Content="Test this rule" Margin="0,18,0,0" HorizontalAlignment="Left" Click="TestButton_Click"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="事件记录">
+            <TabItem x:Name="TabEvents" Header="Events">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <Button Content="清空记录" Click="ClearEvents_Click"/>
-                        <TextBlock Text="最多保留 500 条，新的在最上方" FontSize="11" Foreground="{DynamicResource Theme.TextSecondary}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        <Button x:Name="BtnClear" Content="Clear" Click="ClearEvents_Click"/>
+                        <TextBlock x:Name="HintEvents" Text="Keeps the latest 500" FontSize="11" Foreground="{DynamicResource Theme.TextSecondary}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </StackPanel>
                     <ListView x:Name="EventList" Grid.Row="1">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="时间" Width="150" DisplayMemberBinding="{Binding Time, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
-                                <GridViewColumn Header="规则" Width="160" DisplayMemberBinding="{Binding RuleName}"/>
-                                <GridViewColumn Header="来源" Width="90" DisplayMemberBinding="{Binding Source}"/>
-                                <GridViewColumn Header="匹配内容" Width="440" DisplayMemberBinding="{Binding MatchedText}"/>
+                                <GridViewColumn x:Name="ColTime" Header="Time" Width="150" DisplayMemberBinding="{Binding Time, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
+                                <GridViewColumn x:Name="ColRule" Header="Rule" Width="160" DisplayMemberBinding="{Binding RuleName}"/>
+                                <GridViewColumn x:Name="ColSource" Header="Source" Width="90" DisplayMemberBinding="{Binding Source}"/>
+                                <GridViewColumn x:Name="ColMatch" Header="Matched" Width="440" DisplayMemberBinding="{Binding MatchedText}"/>
                             </GridView>
                         </ListView.View>
                     </ListView>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="常规设置">
+            <TabItem x:Name="TabGeneral" Header="General">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="10" MaxWidth="560" HorizontalAlignment="Left">
-                    <TextBlock Text="外观" Style="{StaticResource Section}"/>
-                    <TextBlock Text="主题" Style="{StaticResource Label}"/>
+                    <TextBlock x:Name="SecAppearance" Text="Appearance" Style="{StaticResource Section}"/>
+                    <TextBlock x:Name="LblTheme" Text="Theme" Style="{StaticResource Label}"/>
                     <ComboBox x:Name="ThemeCombo" SelectionChanged="ThemeCombo_SelectionChanged"/>
-                    <TextBlock Style="{StaticResource Hint}" Text="明亮 / 夜间 / 薄荷 / 暮紫，切换后设置界面与提示条即时换肤"/>
+                    <TextBlock x:Name="HintTheme" Style="{StaticResource Hint}" Text="Light / Dark / Mint / Dusk / Crimson"/>
 
-                    <TextBlock Text="提示栏位置" Style="{StaticResource Label}" Margin="0,16,0,4"/>
+                    <TextBlock x:Name="LblLanguage" Text="Language" Style="{StaticResource Label}" Margin="0,16,0,4"/>
+                    <ComboBox x:Name="LanguageCombo" SelectionChanged="LanguageCombo_SelectionChanged"/>
+
+                    <TextBlock x:Name="LblPosition" Text="Banner position" Style="{StaticResource Label}" Margin="0,16,0,4"/>
                     <ComboBox x:Name="PositionCombo" SelectionChanged="PositionCombo_SelectionChanged"/>
-                    <TextBlock Style="{StaticResource Hint}" Text="悬浮提示栏出现在屏幕的位置，多条提示会依次堆叠"/>
+                    <TextBlock x:Name="HintPosition" Style="{StaticResource Hint}" Text="Where banners appear"/>
 
-                    <TextBlock Text="行为" Style="{StaticResource Section}"/>
-                    <TextBlock Text="默认显示时长（秒）" Style="{StaticResource Label}"/>
+                    <TextBlock x:Name="SecBehavior" Text="Behavior" Style="{StaticResource Section}"/>
+                    <TextBlock x:Name="LblDefaultDuration" Text="Default duration (seconds)" Style="{StaticResource Label}"/>
                     <TextBox x:Name="DefaultDurationBox" LostFocus="DefaultDurationBox_LostFocus"/>
 
-                    <TextBlock Text="检测间隔（毫秒）" Style="{StaticResource Label}" Margin="0,16,0,4"/>
+                    <TextBlock x:Name="LblPoll" Text="Poll interval (ms)" Style="{StaticResource Label}" Margin="0,16,0,4"/>
                     <ComboBox x:Name="PollCombo" SelectionChanged="PollCombo_SelectionChanged"/>
 
-                    <TextBlock Text="触发冷却（秒）" Style="{StaticResource Label}" Margin="0,16,0,4"/>
+                    <TextBlock x:Name="LblCooldown" Text="Cooldown (seconds)" Style="{StaticResource Label}" Margin="0,16,0,4"/>
                     <TextBox x:Name="CooldownBox" LostFocus="CooldownBox_LostFocus"/>
-                    <TextBlock Style="{StaticResource Hint}" Text="同一条规则两次触发之间的最短间隔，避免反复弹窗"/>
+                    <TextBlock x:Name="HintCooldown" Style="{StaticResource Hint}" Text="Minimum gap between two triggers"/>
 
-                    <TextBlock Text="浏览器检测" Style="{StaticResource Section}"/>
-                    <TextBlock Text="浏览器进程名" Style="{StaticResource Label}"/>
+                    <TextBlock x:Name="SecBrowser" Text="Browser detection" Style="{StaticResource Section}"/>
+                    <TextBlock x:Name="LblBrowserProc" Text="Browser processes" Style="{StaticResource Label}"/>
                     <TextBox x:Name="BrowserProcessesBox" LostFocus="BrowserProcessesBox_LostFocus"/>
-                    <TextBlock Style="{StaticResource Hint}" Text="用于识别“浏览器标签”来源，多个进程名用 ; 分隔，例如 chrome;msedge;firefox"/>
+                    <TextBlock x:Name="HintBrowserProc" Style="{StaticResource Hint}" Text="Process names for the browser-tab source"/>
 
-                    <TextBlock Text="CDP 调试端口" Style="{StaticResource Label}" Margin="0,16,0,4"/>
+                    <TextBlock x:Name="LblCdp" Text="CDP debug port" Style="{StaticResource Label}" Margin="0,16,0,4"/>
                     <TextBox x:Name="CdpPortsBox" LostFocus="CdpPortsBox_LostFocus"/>
-                    <TextBlock Style="{StaticResource Hint}" Text="浏览器需以 --remote-debugging-port 启动（如 Chrome=9222、Edge=9223）。本程序据此在『新打开标签页』时触发一次。多个端口用 ; 分隔"/>
+                    <TextBlock x:Name="HintCdp" Style="{StaticResource Hint}" Text="Launch the browser with --remote-debugging-port"/>
                     <TextBlock x:Name="CdpStatusText" FontSize="12" Foreground="{DynamicResource Theme.Accent}" Margin="0,6,0,0" TextWrapping="Wrap"/>
 
-                    <TextBlock Text="系统" Style="{StaticResource Section}"/>
-                    <CheckBox x:Name="AutoStartCheck" Content="开机自动启动（登录后最小化到托盘）" Click="AutoStartCheck_Click"/>
-                    <CheckBox x:Name="PausedCheck" Content="暂停所有监控" Margin="0,10,0,0" Click="PausedCheck_Click"/>
+                    <TextBlock x:Name="SecSystem" Text="System" Style="{StaticResource Section}"/>
+                    <CheckBox x:Name="AutoStartCheck" Content="Start with Windows" Click="AutoStartCheck_Click"/>
+                    <CheckBox x:Name="PausedCheck" Content="Pause all monitoring" Margin="0,10,0,0" Click="PausedCheck_Click"/>
 
-                    <TextBlock Margin="0,22,0,0" FontSize="11" Foreground="{DynamicResource Theme.TextSecondary}" TextWrapping="Wrap"
-                               Text="配置自动保存。配置文件位置：%APPDATA%\TextBanner\config.json"/>
+                    <TextBlock x:Name="HintAutoSave" Margin="0,22,0,0" FontSize="11" Foreground="{DynamicResource Theme.TextSecondary}" TextWrapping="Wrap"
+                               Text="Config auto-saves"/>
                 </StackPanel>
                 </ScrollViewer>
             </TabItem>

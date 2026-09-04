@@ -68,7 +68,7 @@ public class AppServices : IDisposable
     }
 
     public void ShowTest()
-        => Banner.Show("**加粗** *斜体* **加粗*嵌套斜体***\n\n试试 `代码` 与[链接](https://example.com)", 6, "medium", "测试", "#2F6FED");
+        => Banner.Show(Loc.Get("TestContent"), 6, "medium", Loc.Get("TestTitle"), "#2F6FED");
 
     public void TogglePause()
     {

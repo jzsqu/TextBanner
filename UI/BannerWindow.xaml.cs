@@ -32,6 +32,7 @@ public partial class BannerWindow : Window
         AccentBar.Background = _accent;
         TitleText.Foreground = _accent;
         if (!string.IsNullOrWhiteSpace(title)) TitleText.Text = title;
+        else TitleText.Text = Loc.Get("BannerTitle");
         ApplySize(size);
         Markdown.Render(MessageText, text, _accent, MessageText.FontSize);
         Opacity = 0;
@@ -120,13 +121,13 @@ public partial class BannerWindow : Window
         if (_pinned)
         {
             _autoCloseTimer?.Stop();
-            HintText.Text = "已固定 · 右键或 ✕ 关闭 · 长按取消固定";
+            HintText.Text = Loc.Get("BannerPinned");
             Card.BorderBrush = _accent;
             Card.BorderThickness = new Thickness(2);
         }
         else
         {
-            HintText.Text = "双击设置 · 右键关闭 · 长按固定";
+            HintText.Text = Loc.Get("BannerHint");
             Card.SetResourceReference(Border.BorderBrushProperty, "Theme.Border");
             Card.BorderThickness = new Thickness(1);
             StartAutoClose();

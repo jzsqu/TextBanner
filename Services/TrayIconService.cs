@@ -1,5 +1,6 @@
 using Drawing = System.Drawing;
 using WinForms = System.Windows.Forms;
+using TextBanner.UI;
 
 namespace TextBanner.Services;
 
@@ -8,8 +9,12 @@ public class TrayIconService : IDisposable
     private readonly AppServices _app;
     private readonly WinForms.NotifyIcon _icon;
     private readonly WinForms.ContextMenuStrip _menu;
-    private readonly WinForms.ToolStripMenuItem _pauseItem;
+    private readonly WinForms.ToolStripMenuItem _openSettingsItem;
     private readonly WinForms.ToolStripMenuItem _rulesRoot;
+    private readonly WinForms.ToolStripMenuItem _eventsItem;
+    private readonly WinForms.ToolStripMenuItem _pauseItem;
+    private readonly WinForms.ToolStripMenuItem _testItem;
+    private readonly WinForms.ToolStripMenuItem _exitItem;
 
     public TrayIconService(AppServices app)
     {
@@ -17,22 +22,37 @@ public class TrayIconService : IDisposable
         _icon = new WinForms.NotifyIcon
         {
             Icon = CreateIcon(),
-            Text = "文本触发提醒 TextBanner",
+            Text = "TextBanner",
             Visible = true
         };
 
         _menu = new WinForms.ContextMenuStrip();
-        _menu.Items.Add("打开设置", null, (s, e) => _app.OpenSettings());
-        _rulesRoot = new WinForms.ToolStripMenuItem("规则列表");
+        _openSettingsItem = new WinForms.ToolStripMenuItem();
+        _openSettingsItem.Click += (s, e) => _app.OpenSettings();
+        _menu.Items.Add(_openSettingsItem);
+
+        _rulesRoot = new WinForms.ToolStripMenuItem();
         _menu.Items.Add(_rulesRoot);
-        _menu.Items.Add("事件记录", null, (s, e) => _app.OpenSettings(eventsTab: true));
+
+        _eventsItem = new WinForms.ToolStripMenuItem();
+        _eventsItem.Click += (s, e) => _app.OpenSettings(eventsTab: true);
+        _menu.Items.Add(_eventsItem);
+
         _menu.Items.Add(new WinForms.ToolStripSeparator());
-        _pauseItem = new WinForms.ToolStripMenuItem("暂停监控");
+
+        _pauseItem = new WinForms.ToolStripMenuItem();
         _pauseItem.Click += (s, e) => _app.TogglePause();
         _menu.Items.Add(_pauseItem);
-        _menu.Items.Add("测试提示", null, (s, e) => _app.ShowTest());
+
+        _testItem = new WinForms.ToolStripMenuItem();
+        _testItem.Click += (s, e) => _app.ShowTest();
+        _menu.Items.Add(_testItem);
+
         _menu.Items.Add(new WinForms.ToolStripSeparator());
-        _menu.Items.Add("退出", null, (s, e) => _app.Exit());
+
+        _exitItem = new WinForms.ToolStripMenuItem();
+        _exitItem.Click += (s, e) => _app.Exit();
+        _menu.Items.Add(_exitItem);
 
         _menu.Opening += (s, e) => RefreshDynamic();
         _icon.ContextMenuStrip = _menu;
@@ -41,19 +61,24 @@ public class TrayIconService : IDisposable
 
     private void RefreshDynamic()
     {
-        _pauseItem.Text = _app.Config.General.Paused ? "恢复监控" : "暂停监控";
+        _openSettingsItem.Text = Loc.Get("TrayOpenSettings");
+        _rulesRoot.Text = Loc.Get("TrayRules");
+        _eventsItem.Text = Loc.Get("TrayEvents");
+        _pauseItem.Text = _app.Config.General.Paused ? Loc.Get("TrayResume") : Loc.Get("TrayPause");
+        _testItem.Text = Loc.Get("TrayTest");
+        _exitItem.Text = Loc.Get("TrayExit");
 
         _rulesRoot.DropDownItems.Clear();
         var rules = _app.Config.RulesSnapshot();
         if (rules.Count == 0)
         {
-            var empty = _rulesRoot.DropDownItems.Add("（无规则）");
+            var empty = _rulesRoot.DropDownItems.Add(Loc.Get("NoRules"));
             empty.Enabled = false;
             return;
         }
         foreach (var r in rules)
         {
-            var label = (r.Enabled ? "● " : "○ ") + (string.IsNullOrEmpty(r.Name) ? "（未命名）" : r.Name);
+            var label = (r.Enabled ? "● " : "○ ") + (string.IsNullOrEmpty(r.Name) ? Loc.Get("Unnamed") : r.Name);
             var item = new WinForms.ToolStripMenuItem(label);
             item.Click += (s, e) => _app.OpenSettings(r.Id);
             _rulesRoot.DropDownItems.Add(item);

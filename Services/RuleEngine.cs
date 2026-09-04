@@ -1,5 +1,6 @@
 using System.IO;
 using TextBanner.Models;
+using TextBanner.UI;
 
 namespace TextBanner.Services;
 
@@ -103,8 +104,8 @@ public class RuleEngine
                     _app.EventLog.Record(new EventRecord
                     {
                         Time = DateTime.Now,
-                        RuleName = "内部错误",
-                        Source = "引擎",
+                        RuleName = Loc.Get("EngineError"),
+                        SourceKey = null,
                         MatchedText = ex.Message
                     });
                 }
@@ -203,7 +204,7 @@ public class RuleEngine
         {
             Time = DateTime.Now,
             RuleName = rule.Name,
-            Source = SourceLabel(rule.Source),
+            SourceKey = rule.Source,
             MatchedText = snippet
         });
         OpenAction(rule.ActionTarget);
@@ -222,15 +223,6 @@ public class RuleEngine
             catch { }
         }
     }
-
-    private static string SourceLabel(RuleSource s) => s switch
-    {
-        RuleSource.Browser => "浏览器标签",
-        RuleSource.Window => "窗口名字",
-        RuleSource.File => "文本文件",
-        RuleSource.Folder => "文件夹",
-        _ => s.ToString()
-    };
 
     private RuleState EnsureState(TriggerRule rule)
     {
