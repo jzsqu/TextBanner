@@ -48,3 +48,7 @@ For the *browser tab* source (fires on **newly opened** tabs), load `browser-ext
 ## License
 
 [MIT](LICENSE)
+
+---
+
+Built with the help of an AI coding agent (DeepSeek Harness). · 本项目由 AI 编程助手（DeepSeek Harness）协助开发。
